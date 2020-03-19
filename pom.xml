@@ -658,6 +658,25 @@
       </distributionManagement>
 
       <build>
+        <plugins>
+          <!-- Generate the effective poms for this build -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-help-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>generate-effective-pom</id>
+                <phase>compile</phase>
+                <goals>
+                  <goal>effective-pom</goal>
+                </goals>
+                <configuration>
+                  <output>${project.build.directory}/effective.pom</output>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
         <pluginManagement>
           <plugins>
             <!-- We require the release manager to manually login an sign using his credentials -->
