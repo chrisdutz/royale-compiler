@@ -35,9 +35,9 @@
   <description>The Apache Royale Project</description>
 
   <scm>
-    <connection>scm:git:https://github.com/apache/royale-compiler.git</connection>
-    <developerConnection>scm:git:https://github.com/apache/royale-compiler.git</developerConnection>
-    <url>scm:git:https://github.com/apache/royale-compiler.git</url>
+    <connection>scm:git:https://github.com/chrisdutz/royale-compiler.git</connection>
+    <developerConnection>scm:git:https://github.com/chrisdutz/royale-compiler.git</developerConnection>
+    <url>scm:git:https://github.com/chrisdutz/royale-compiler.git</url>
   </scm>
 
   <properties>
@@ -62,6 +62,16 @@
 
   <!-- Only configure the site distribution as the rest is handled by the apache parent -->
   <distributionManagement>
+    <repository>
+      <id>C-Ware IT-Service Artifactory</id>
+      <name>C-Ware IT-Service Artifactory-releases</name>
+      <url>https://dev.c-ware.de/artifactory/libs-releases-local</url>
+    </repository>
+    <snapshotRepository>
+      <id>C-Ware IT-Service Artifactory</id>
+      <name>C-Ware IT-Service Artifactory-releases</name>
+      <url>https://dev.c-ware.de/artifactory/libs-snapshot-local</url>
+    </snapshotRepository>
     <site>
       <id>apache.website</id>
       <url>scm:git:https://github.com/apache/royale-compiler.git</url>
