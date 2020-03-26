@@ -125,8 +125,6 @@ public class MXMLDescriptorSpecifier extends MXMLNodeSpecifier
  
     private int currentIndent = 0;
 
-    public boolean useGoogReflectObjectProperty = false;
-
     //--------------------------------------------------------------------------
     //
     //    Methods
@@ -202,31 +200,9 @@ public class MXMLDescriptorSpecifier extends MXMLNodeSpecifier
 
     private String outputPropertySpecifier(boolean writeNewline)
     {
-        if (isProperty)
-        {
-            if(useGoogReflectObjectProperty)
-            {
-                write(JSGoogEmitterTokens.GOOG_REFLECT_OBJECTPROPERTY);
-                write(ASEmitterTokens.PAREN_OPEN);
-                write(ASEmitterTokens.SINGLE_QUOTE);
-                write(name);
-                write(ASEmitterTokens.SINGLE_QUOTE);
-                write(ASEmitterTokens.COMMA);
-                write(ASEmitterTokens.SPACE);
-                write(ASEmitterTokens.THIS);
-                write(ASEmitterTokens.PAREN_CLOSE);
-            }
-            else
-            {
-                write(ASEmitterTokens.SINGLE_QUOTE);
-                write(name);
-                write(ASEmitterTokens.SINGLE_QUOTE);
-            }
-        }
-        else
-        {
-            write(name);
-        }
+        write((isProperty) ? ASEmitterTokens.SINGLE_QUOTE.getToken() : "");
+        write(name);
+        write((isProperty) ? ASEmitterTokens.SINGLE_QUOTE.getToken() : "");
         writeDelimiter(writeNewline);
 
         if (isProperty)

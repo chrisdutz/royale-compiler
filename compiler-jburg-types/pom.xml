@@ -25,13 +25,13 @@
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>22</version>
+    <version>23</version>
     <relativePath/>
   </parent>
 
   <groupId>org.apache.royale.compiler</groupId>
   <artifactId>compiler-jburg-types</artifactId>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
 
   <name>Apache Royale: JBurg Types</name>
   <description>Types needed by JBurg to perform it's code generation.</description>
@@ -80,6 +80,19 @@
             </tag>
           </tags>
         </configuration>
+      </plugin>
+      <!-- This plugin cleans up the jars for anything that might cause problems for reproducible builds -->
+      <plugin>
+        <groupId>io.github.zlika</groupId>
+        <artifactId>reproducible-build-maven-plugin</artifactId>
+        <version>0.11</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>strip-jar</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

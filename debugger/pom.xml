@@ -66,7 +66,7 @@ Do all the JBurg code generation.
           <dependency>
             <groupId>org.apache.royale.compiler</groupId>
             <artifactId>compiler-jburg-types</artifactId>
-            <version>${compiler-build-tools.version}</version>
+            <version>${compiler-jburg-types.version}</version>
           </dependency>
           <dependency>
             <groupId>net.sourceforge.jburg</groupId>

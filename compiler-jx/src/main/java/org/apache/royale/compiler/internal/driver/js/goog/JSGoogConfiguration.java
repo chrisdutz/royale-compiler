@@ -446,64 +446,6 @@ public class JSGoogConfiguration extends JSConfiguration
     	exportProtectedSymbols = value;
     }
 
-    //
-    // 'rename-public-symbols'
-    //
-
-    private boolean renamePublicSymbols = false;
-
-    public boolean getRenamePublicSymbols()
-    {
-        return renamePublicSymbols;
-    }
-
-    @Config
-    @Mapping("rename-public-symbols")
-    public void setRenamePublicSymbols(ConfigurationValue cv, boolean value)
-            throws ConfigurationException
-    {
-    	renamePublicSymbols = value;
-    }
-
-    
-    //
-    // 'rename-protected-symbols'
-    //
-
-    private boolean renameProtectedSymbols = false;
-
-    public boolean getRenameProtectedSymbols()
-    {
-        return renameProtectedSymbols;
-    }
-
-    @Config
-    @Mapping("rename-protected-symbols")
-    public void setRenameProtectedSymbols(ConfigurationValue cv, boolean value)
-            throws ConfigurationException
-    {
-    	renameProtectedSymbols = value;
-    }
-
-    //
-    // 'mxml-reflect-object-property'
-    //
-
-    private boolean mxmlReflectObjectProperty = true;
-
-    public boolean getMxmlReflectObjectProperty()
-    {
-        return mxmlReflectObjectProperty;
-    }
-
-    @Config
-    @Mapping("mxml-reflect-object-property")
-    public void setMxmlReflectObjectProperty(ConfigurationValue cv, boolean value)
-            throws ConfigurationException
-    {
-    	mxmlReflectObjectProperty = value;
-    }
-
     
     //
     // 'warn-public-vars'

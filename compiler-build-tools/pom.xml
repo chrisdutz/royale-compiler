@@ -23,13 +23,13 @@
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>22</version>
+    <version>23</version>
     <relativePath />
   </parent>
 
   <groupId>org.apache.royale.compiler</groupId>
   <artifactId>compiler-build-tools</artifactId>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
   <packaging>maven-plugin</packaging>
 
   <name>Apache Royale: Build Tools</name>
@@ -62,6 +62,19 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin>
+      <!-- This plugin cleans up the jars for anything that might cause problems for reproducible builds -->
+      <plugin>
+        <groupId>io.github.zlika</groupId>
+        <artifactId>reproducible-build-maven-plugin</artifactId>
+        <version>0.11</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>strip-jar</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
     <pluginManagement>

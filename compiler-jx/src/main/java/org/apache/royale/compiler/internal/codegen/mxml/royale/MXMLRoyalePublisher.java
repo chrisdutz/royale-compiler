@@ -28,7 +28,7 @@ import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.royale.compiler.clients.problems.ProblemQuery;
-import org.apache.royale.compiler.codegen.js.goog.IJSGoogPublisher;
+import org.apache.royale.compiler.codegen.js.IJSPublisher;
 import org.apache.royale.compiler.config.Configuration;
 import org.apache.royale.compiler.css.ICSSPropertyValue;
 import org.apache.royale.compiler.definitions.IClassDefinition;
@@ -40,6 +40,7 @@ import org.apache.royale.compiler.internal.codegen.js.goog.JarSourceFile;
 import org.apache.royale.compiler.internal.css.CSSArrayPropertyValue;
 import org.apache.royale.compiler.internal.css.CSSFontFace;
 import org.apache.royale.compiler.internal.css.CSSFunctionCallPropertyValue;
+import org.apache.royale.compiler.internal.definitions.ClassDefinition;
 import org.apache.royale.compiler.internal.driver.js.royale.JSCSSCompilationSession;
 import org.apache.royale.compiler.internal.driver.js.goog.JSGoogConfiguration;
 import org.apache.royale.compiler.internal.graph.GoogDepsWriter;
@@ -57,7 +58,7 @@ import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.*;
 
-public class MXMLRoyalePublisher extends JSGoogPublisher implements IJSGoogPublisher
+public class MXMLRoyalePublisher extends JSGoogPublisher implements IJSPublisher
 {
 
     public static final String ROYALE_OUTPUT_DIR_NAME = "bin";
@@ -102,8 +103,6 @@ public class MXMLRoyalePublisher extends JSGoogPublisher implements IJSGoogPubli
     private String moduleOutput;
     private boolean useStrictPublishing;
     private List<String> additionalHTML = new ArrayList<String>();
-    private Set<String> closurePropertyNamesToKeep;
-    private Set<String> closureSymbolNamesToExport;
 
     private GoogDepsWriter getGoogDepsWriter(File intermediateDir, 
     										String mainClassQName, 
@@ -182,16 +181,6 @@ public class MXMLRoyalePublisher extends JSGoogPublisher implements IJSGoogPubli
         }
 
         return outputFolder;
-    }
-
-    public void setClosurePropertyNamesToKeep(Set<String> propertyNames)
-    {
-        closurePropertyNamesToKeep = propertyNames;
-    }
-
-    public void setClosureSymbolNamesToExport(Set<String> symbolNames)
-    {
-        closureSymbolNamesToExport = symbolNames;
     }
 
     @Override
@@ -392,14 +381,6 @@ public class MXMLRoyalePublisher extends JSGoogPublisher implements IJSGoogPubli
         if (configuration.release())
         {
             compilerWrapper = new JSClosureCompilerWrapper(googConfiguration.getJSCompilerOptions());
-            compilerWrapper.setPropertyNamesToKeep(closurePropertyNamesToKeep);
-            if (closureSymbolNamesToExport == null) {
-                closureSymbolNamesToExport = new HashSet<String>();
-            }
-            //the HTML template always needs this name to be exported, even if
-            //other class names are not exported
-            closureSymbolNamesToExport.add(mainClassQName);
-            compilerWrapper.setExtraSymbolNamesToExport(closureSymbolNamesToExport);
         }
 
         if (compilerWrapper != null)
