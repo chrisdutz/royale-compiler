@@ -35,10 +35,10 @@
   <description>The Apache Royale Project</description>
 
   <scm>
-    <connection>scm:git:git://github.com/chrisdutz/royale-compiler.git</connection>
-    <developerConnection>scm:git:git://github.com/chrisdutz/royale-compiler.git</developerConnection>
+    <connection>scm:git:ssh://git@github.com/chrisdutz/royale-compiler.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/chrisdutz/royale-compiler.git</developerConnection>
     <url>http://github.com/chrisdutz/royale-compiler</url>
-    <tag>release-test/0.9.7</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
