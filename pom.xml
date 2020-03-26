@@ -28,7 +28,7 @@
 
   <groupId>org.apache.royale.compiler</groupId>
   <artifactId>royale-compiler-parent</artifactId>
-  <version>0.9.8-SNAPSHOT</version>
+  <version>0.9.9-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Apache Royale: Compiler: Parent</name>
@@ -38,7 +38,7 @@
     <connection>scm:git:ssh://git@github.com/chrisdutz/royale-compiler.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/chrisdutz/royale-compiler.git</developerConnection>
     <url>http://github.com/chrisdutz/royale-compiler</url>
-    <tag>release-test/0.9.8</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
