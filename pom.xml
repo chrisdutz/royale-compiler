@@ -38,7 +38,7 @@
     <connection>scm:git:ssh://git@github.com/chrisdutz/royale-compiler.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/chrisdutz/royale-compiler.git</developerConnection>
     <url>http://github.com/chrisdutz/royale-compiler</url>
-    <tag>HEAD</tag>
+    <tag>release-test/0.9.8</tag>
   </scm>
 
   <properties>
