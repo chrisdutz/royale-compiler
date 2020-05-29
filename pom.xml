@@ -40,19 +40,6 @@
     <tag>HEAD</tag>
   </scm>
 
-  <distributionManagement>
-    <repository>
-      <id>C-Ware Artifactory</id>
-      <name>C-Ware Artifactory-releases</name>
-      <url>https://dev.c-ware.de/artifactory/royale-release</url>
-    </repository>
-    <snapshotRepository>
-      <id>C-Ware Artifactory</id>
-      <name>C-Ware Artifactory-snapshots</name>
-      <url>https://dev.c-ware.de/artifactory/royale-release</url>
-    </snapshotRepository>
-  </distributionManagement>
-
   <properties>
     <java.version>1.8</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -85,6 +72,16 @@
       <id>apache.website</id>
       <url>scm:git:https://gitbox.apache.org/repos/asf/royale-compiler.git</url>
     </site>
+    <repository>
+      <id>C-Ware Artifactory</id>
+      <name>C-Ware Artifactory-releases</name>
+      <url>https://dev.c-ware.de/artifactory/royale-release</url>
+    </repository>
+    <snapshotRepository>
+      <id>C-Ware Artifactory</id>
+      <name>C-Ware Artifactory-snapshots</name>
+      <url>https://dev.c-ware.de/artifactory/royale-release</url>
+    </snapshotRepository>
   </distributionManagement>
 
   <issueManagement>
