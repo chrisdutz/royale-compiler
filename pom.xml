@@ -34,11 +34,24 @@
   <description>The Apache Royale Project</description>
   
   <scm>
-    <connection>scm:git:https://gitbox.apache.org/repos/asf/royale-compiler.git</connection>
-    <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/royale-compiler.git</developerConnection>
-    <url>https://github.com/apache/royale-compiler</url>
+    <connection>scm:git:https://github.com/chrisdutz/royale-compiler.git</connection>
+    <developerConnection>scm:git:https://github.com/chrisdutz/royale-compiler.git</developerConnection>
+    <url>https://github.com/chrisdutz/royale-compiler</url>
     <tag>HEAD</tag>
   </scm>
+
+  <distributionManagement>
+    <repository>
+      <id>C-Ware Artifactory</id>
+      <name>C-Ware Artifactory-releases</name>
+      <url>https://dev.c-ware.de/artifactory/royale-release</url>
+    </repository>
+    <snapshotRepository>
+      <id>C-Ware Artifactory</id>
+      <name>C-Ware Artifactory-snapshots</name>
+      <url>https://dev.c-ware.de/artifactory/royale-release</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <properties>
     <java.version>1.8</java.version>
