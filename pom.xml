@@ -34,8 +34,8 @@
   <description>The Apache Royale Project</description>
   
   <scm>
-    <connection>scm:git:https://github.com/chrisdutz/royale-compiler.git</connection>
-    <developerConnection>scm:git:https://github.com/chrisdutz/royale-compiler.git</developerConnection>
+    <connection>scm:git:git://github.com/chrisdutz/royale-compiler.git</connection>
+    <developerConnection>scm:git:git@github.com:chrisdutz/royale-compiler.git</developerConnection>
     <url>https://github.com/chrisdutz/royale-compiler</url>
     <tag>rel/0.8</tag>
   </scm>
