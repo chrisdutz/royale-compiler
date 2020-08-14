@@ -32,6 +32,7 @@ import org.apache.royale.compiler.definitions.ITypeDefinition;
 import org.apache.royale.compiler.definitions.IVariableDefinition;
 import org.apache.royale.compiler.definitions.IVariableDefinition.VariableClassification;
 import org.apache.royale.compiler.definitions.references.INamespaceReference;
+import org.apache.royale.compiler.internal.codegen.js.royale.JSRoyaleEmitter;
 import org.apache.royale.compiler.internal.codegen.js.utils.DocEmitterUtils;
 import org.apache.royale.compiler.internal.projects.RoyaleJSProject;
 import org.apache.royale.compiler.scopes.IASScope;
@@ -93,21 +94,18 @@ public class ClosureUtils
                                 continue;
                             }
                             INamespaceReference nsRef = localDef.getNamespaceReference();
-                            boolean isPublic = nsRef instanceof INamespaceDefinition.IPublicNamespaceDefinition;
-                            boolean isProtected = nsRef instanceof INamespaceDefinition.IProtectedNamespaceDefinition
-                                    || nsRef instanceof INamespaceDefinition.IStaticProtectedNamespaceDefinition;
-                            boolean isInternal = nsRef instanceof INamespaceDefinition.IInternalNamespaceDefinition;
-                            
-                            if ((isPublic && preventRenamePublic)
-                                    || (isProtected && preventRenameProtected)
-                                    || (isInternal && preventRenameInternal))
+                            boolean isCustomNS = !nsRef.isLanguageNamespace();
+                            if ((localDef.isPublic() && preventRenamePublic)
+                                    || (isCustomNS && preventRenamePublic)
+                                    || (localDef.isProtected() && preventRenameProtected)
+                                    || (localDef.isInternal() && preventRenameInternal))
                             {
                                 if (localDef instanceof IAccessorDefinition)
                                 {
-                                    /* disabled temporarily until AccessorEmitter handles @export
-                                        (isProtected && exportProtected)
-                                        (isInternal && exportInternal) */
-                                    if ((isPublic && exportPublic))
+                                    if ((localDef.isPublic() && exportPublic)
+                                            || (isCustomNS && exportPublic)
+                                            || (localDef.isProtected() && exportProtected)
+                                            || (localDef.isInternal() && exportInternal))
                                     {
                                         //if an accessor is exported, we don't
                                         //need to prevent renaming
@@ -115,7 +113,13 @@ public class ClosureUtils
                                         continue;
                                     }
                                 }
-                                result.add(localDef.getBaseName());
+                                String baseName = localDef.getBaseName();
+                                if (isCustomNS)
+                                {
+                                    String uri = nsRef.resolveNamespaceReference(project).getURI();
+                                    baseName = JSRoyaleEmitter.formatNamespacedProperty(uri, baseName, false);
+                                }
+                                result.add(baseName);
                             }
                         }
                     }
@@ -191,28 +195,29 @@ public class ClosureUtils
                             {
                                 continue;
                             }
-                            INamespaceReference nsRef = localDef.getNamespaceReference();
-                            boolean isPublic = nsRef instanceof INamespaceDefinition.IPublicNamespaceDefinition;
-                            boolean isProtected = nsRef instanceof INamespaceDefinition.IProtectedNamespaceDefinition
-                                    || nsRef instanceof INamespaceDefinition.IStaticProtectedNamespaceDefinition;
-                            boolean isInternal = nsRef instanceof INamespaceDefinition.IInternalNamespaceDefinition;
                             if (localDef instanceof IFunctionDefinition
-                                    && !(localDef instanceof IAccessorDefinition)
-                                    // the next condition is temporary, and more
-                                    // symbols will be exported in the future
-                                    && isPublic)
+                                    && !(localDef instanceof IAccessorDefinition))
                             {
-                                if ((isPublic && exportPublic)
-                                        || (isProtected && exportProtected)
-                                        || (isInternal && exportInternal))
+                                INamespaceReference nsRef = localDef.getNamespaceReference();
+                                boolean isCustomNS = !nsRef.isLanguageNamespace();
+                                if ((localDef.isPublic() && exportPublic)
+                                        || (isCustomNS && exportPublic)
+                                        || (localDef.isProtected() && exportProtected)
+                                        || (localDef.isInternal() && exportInternal))
                                 {
+                                    String baseName = localDef.getBaseName();
+                                    if (isCustomNS)
+                                    {
+                                        String uri = nsRef.resolveNamespaceReference(project).getURI();
+                                        baseName = JSRoyaleEmitter.formatNamespacedProperty(uri, localDef.getBaseName(), false);
+                                    }
                                     if (isFilePrivate)
                                     {
-                                        filePrivateNames.add(qualifiedName + (localDef.isStatic() ? "." : ".prototype.") + localDef.getBaseName());
+                                        filePrivateNames.add(qualifiedName + (localDef.isStatic() ? "." : ".prototype.") + baseName);
                                     }
                                     else
                                     {
-                                        symbolsResult.add(qualifiedName + (localDef.isStatic() ? "." : ".prototype.") + localDef.getBaseName());
+                                        symbolsResult.add(qualifiedName + (localDef.isStatic() ? "." : ".prototype.") + baseName);
                                     }
                                 }
                             }
