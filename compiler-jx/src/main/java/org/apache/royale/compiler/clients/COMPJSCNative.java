@@ -26,11 +26,20 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
+import java.util.zip.CRC32;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -50,6 +59,7 @@ import org.apache.royale.compiler.internal.parsing.as.RoyaleASDocDelegate;
 import org.apache.royale.compiler.internal.projects.CompilerProject;
 import org.apache.royale.compiler.internal.projects.RoyaleJSProject;
 import org.apache.royale.compiler.internal.targets.RoyaleSWCTarget;
+import org.apache.royale.compiler.internal.units.SWCCompilationUnit;
 import org.apache.royale.compiler.internal.targets.JSTarget;
 import org.apache.royale.compiler.internal.workspaces.Workspace;
 import org.apache.royale.compiler.problems.ICompilerProblem;
@@ -59,6 +69,7 @@ import org.apache.royale.compiler.problems.UnableToBuildSWFProblem;
 import org.apache.royale.compiler.targets.ITarget.TargetType;
 import org.apache.royale.compiler.targets.ITargetSettings;
 import org.apache.royale.compiler.units.ICompilationUnit;
+import org.apache.royale.swc.ISWCFileEntry;
 import org.apache.royale.swc.io.SWCReader;
 
 /**
@@ -347,33 +358,89 @@ public class COMPJSCNative extends MXMLJSCNative
                                     cu.getQualifiedNames().get(0),
                                     isExterns ? externsOut : jsOut,
                                     false).getPath();
+                            outputClassFile = outputClassFile.replace('\\', '/');
                             if (config.isVerbose())
                             {
                                 System.out.println("Writing file: " + outputClassFile);     	
                             }
-	                        zipOutputStream.putNextEntry(new ZipEntry(outputClassFile));
-	                        temp.writeTo(zipOutputStream);
-                            zipOutputStream.flush();
-	                        zipOutputStream.closeEntry();
-	                        fileList.append("        <file path=\"" + outputClassFile + "\" mod=\"" + System.currentTimeMillis() + "\"/>\n");
+	                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	                        temp.writeTo(baos);
+                            writeFileToZip(zipOutputStream, outputClassFile, baos, fileList);
                             if(sourceMapTemp != null)
                             {
                                 String sourceMapFile = getOutputSourceMapFile(
                                     cu.getQualifiedNames().get(0),
                                     isExterns ? externsOut : jsOut,
                                     false).getPath();
+                                sourceMapFile = sourceMapFile.replace('\\', '/');
                                 if (config.isVerbose())
                                 {
                                     System.out.println("Writing file: " + sourceMapFile);
                                 }
-                                zipOutputStream.putNextEntry(new ZipEntry(sourceMapFile));
-                                sourceMapTemp.writeTo(zipOutputStream);
-                                zipOutputStream.flush();
-                                zipOutputStream.closeEntry();
-                                fileList.append("        <file path=\"" + sourceMapFile + "\" mod=\"" + System.currentTimeMillis() + "\"/>\n");
+    	                        baos = new ByteArrayOutputStream();
+                                sourceMapTemp.writeTo(baos);
+                                writeFileToZip(zipOutputStream, sourceMapFile, baos, fileList);
                             }
                             writer.close();
                         }
+                    }
+                    else if (cuType == ICompilationUnit.UnitType.SWC_UNIT)
+                    {
+                    	String symbol = cu.getQualifiedNames().get(0);
+                    	if (externs.contains(symbol)) continue;
+                    	if (project.isExternalLinkage(cu)) continue;
+                    	if (!packingSWC)
+                    	{
+                            // we probably shouldn't skip this -JT
+                            continue;
+                        }
+
+                        // if another .swc file is on our library-path, we must
+                        // include the .js (and .js.map) files because the
+                        // bytecode will also be included. if we have the
+                        // bytecode, but not the .js files, the compiler won't
+                        // know where to find the .js files. that's really bad.
+
+                        // if the bytecode and .js files should not be included,
+                        // then the developer is expected to use
+                        // external-library-path instead of library-path.
+
+                        SWCCompilationUnit swcCU = (SWCCompilationUnit) cu;
+                        String outputClassFile = getOutputClassFile(
+                                cu.getQualifiedNames().get(0),
+                                jsOut,
+                                false).getPath();
+                        outputClassFile = outputClassFile.replace('\\', '/');
+                        ISWCFileEntry fileEntry = swcCU.getSWC().getFile(outputClassFile);
+                        if (fileEntry == null)
+                        {
+                            continue;
+                        }
+                        if (config.isVerbose())
+                        {
+                            System.out.println("Writing file: " + outputClassFile + " from SWC: " + swcCU.getAbsoluteFilename());
+                        }
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        InputStream fileStream = fileEntry.createInputStream();
+                        IOUtils.copy(fileStream, baos);
+                        fileStream.close();
+                        writeFileToZip(zipOutputStream, outputClassFile, baos, fileList);
+
+                        String outputMapFile = outputClassFile + ".map";
+                        fileEntry = swcCU.getSWC().getFile(outputMapFile);
+                        if (fileEntry == null)
+                        {
+                            continue;
+                        }
+                        if (config.isVerbose())
+                        {
+                            System.out.println("Writing file: " + outputMapFile + " from SWC: " + swcCU.getAbsoluteFilename());
+                        }
+                        baos = new ByteArrayOutputStream();
+                        fileStream = fileEntry.createInputStream();
+                        IOUtils.copy(fileStream, baos);
+                        fileStream.close();
+                        writeFileToZip(zipOutputStream, outputMapFile, baos, fileList);
                     }
                 }
                 if (packingSWC)
@@ -404,6 +471,50 @@ public class COMPJSCNative extends MXMLJSCNative
         }
 
         return compilationSuccess;
+    }
+
+    private void writeFileToZip(ZipOutputStream zipOutputStream, String entryFilePath, ByteArrayOutputStream baos, StringBuilder fileList) throws IOException
+    {
+        long fileDate = System.currentTimeMillis();
+        long zipFileDate = fileDate;
+        String metadataDate = targetSettings.getSWFMetadataDate();
+        if (metadataDate != null)
+        {
+            String metadataFormat = targetSettings.getSWFMetadataDateFormat();
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat(metadataFormat);
+                Date d = sdf.parse(metadataDate);
+                Calendar cal = new GregorianCalendar();
+                cal.setTime(d);
+                sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+                d = sdf.parse(metadataDate);
+                fileDate = d.getTime();
+                ZonedDateTime zdt = ZonedDateTime.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), 
+                                        cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), 0, ZoneId.systemDefault());
+                zipFileDate = zdt.toInstant().toEpochMilli();
+            } catch (ParseException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IllegalArgumentException e1) {
+                e1.printStackTrace();
+            }
+        }
+        ZipEntry ze = new ZipEntry(entryFilePath);
+        ze.setTime(zipFileDate);
+        ze.setMethod(ZipEntry.STORED);
+        
+        ze.setSize(baos.size());
+        ze.setCompressedSize(baos.size());
+        CRC32 crc = new CRC32();
+        crc.reset();
+        crc.update(baos.toByteArray());
+        ze.setCrc(crc.getValue());
+
+        zipOutputStream.putNextEntry(ze);
+        baos.writeTo(zipOutputStream);
+        zipOutputStream.flush();
+        zipOutputStream.closeEntry();
+        fileList.append("        <file path=\"" + entryFilePath + "\" mod=\"" + fileDate + "\"/>\n");
     }
 
     /**
